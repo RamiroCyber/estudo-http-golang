@@ -16,7 +16,7 @@ type User struct {
 }
 
 func userId(w http.ResponseWriter, r *http.Request, id int) {
-	db, err := sql.Open("mysql", "rrot:123456/httpgo")
+	db, err := sql.Open("mysql", "root:123456/httpgo")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,7 +32,24 @@ func userId(w http.ResponseWriter, r *http.Request, id int) {
 	fmt.Fprintf(w, string(json))
 }
 
-func allUsers(w http.ResponseWriter, r *http.Request, id int) {
+func allUsers(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("mysql", "root:123456/httpgo")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query("select * from users")
+	var users []User
+	for rows.Next() {
+		var user User
+		rows.Scan(&user.ID, &user.Nome)
+		users = append(users, user)
+	}
+
+	json, _ := json2.Marshal(users)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, string(json))
 
 }
 
